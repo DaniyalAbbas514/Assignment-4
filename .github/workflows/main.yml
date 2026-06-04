@@ -1,0 +1,153 @@
+# ============================================
+# WORKFLOW NAME
+# ============================================
+name: Complete CI/CD Learning Pipeline
+
+# ============================================
+# EVENTS - What triggers this workflow
+# ============================================
+on:
+  # Triggers when code is pushed to main/master branch
+  push:
+    branches: [ main, master ]
+  
+  # Triggers on pull requests
+  pull_request:
+    branches: [ main, master ]
+  
+  # Allows manual trigger from GitHub UI
+  workflow_dispatch:
+    inputs:
+      name:
+        description: 'Your name'
+        required: false
+        default: 'Student'
+
+# ============================================
+# JOBS - Collection of steps
+# ============================================
+jobs:
+  
+  # JOB 1: Main Learning Job
+  main-learning-job:
+    name: My Main Learning Job
+    runs-on: ubuntu-latest
+    
+    # STEPS - Actions to be executed
+    steps:
+      # Step 0: Checkout code from repository
+      - name: Step 0 - Checkout Repository Code
+        uses: actions/checkout@v4
+      
+      # Step 1: Show current directory
+      - name: Step 1 - Show Current Directory
+        run: |
+          echo "========================================="
+          echo "📍 STEP 1: SHOWING CURRENT DIRECTORY"
+          echo "========================================="
+          echo "Current working directory:"
+          pwd
+          echo ""
+          echo "Full path: $(pwd)"
+      
+      # Step 2: List files
+      - name: Step 2 - List All Files
+        run: |
+          echo "========================================="
+          echo "📁 STEP 2: LISTING ALL FILES"
+          echo "========================================="
+          echo "Files in current directory:"
+          ls -la
+          echo ""
+          echo "Total number of files: $(ls -1 | wc -l)"
+          echo ""
+          echo "Detailed file information:"
+          ls -lh
+      
+      # Step 3: Make directory
+      - name: Step 3 - Create New Directory
+        run: |
+          echo "========================================="
+          echo "📂 STEP 3: CREATING NEW DIRECTORY"
+          echo "========================================="
+          mkdir -p my_github_actions_directory
+          echo "✅ Directory 'my_github_actions_directory' created successfully!"
+          echo ""
+          echo "Verifying directory creation:"
+          ls -la | grep my_github_actions_directory
+          echo ""
+          echo "Directory permissions:"
+          stat my_github_actions_directory
+      
+      # Step 4: Echo learning message
+      - name: Step 4 - Display Learning Message
+        run: |
+          echo "========================================="
+          echo "💡 STEP 4: LEARNING MESSAGE"
+          echo "========================================="
+          echo "I am learning Github Actions"
+          echo ""
+          echo "🎉 All steps completed successfully!"
+  
+  # JOB 2: Verification Job (Chained Job)
+  verification-job:
+    name: Verification and Summary Job
+    runs-on: ubuntu-latest
+    needs: main-learning-job  # This creates a CHAINED JOB
+    
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      
+      - name: Verify Directory Creation
+        run: |
+          echo "========================================="
+          echo "🔍 VERIFYING PREVIOUS JOB RESULTS"
+          echo "========================================="
+          if [ -d "my_github_actions_directory" ]; then
+            echo "✅ SUCCESS: Directory 'my_github_actions_directory' exists!"
+            echo "📊 Directory contents:"
+            ls -la my_github_actions_directory/
+          else
+            echo "❌ Directory not found, creating now..."
+            mkdir -p my_github_actions_directory
+          fi
+      
+      - name: Display Final Summary
+        run: |
+          echo "========================================="
+          echo "📊 PIPELINE EXECUTION SUMMARY"
+          echo "========================================="
+          echo "✅ Workflow Name: Complete CI/CD Learning Pipeline"
+          echo "✅ Trigger Event: ${{ github.event_name }}"
+          echo "✅ Repository: ${{ github.repository }}"
+          echo "✅ Branch: ${{ github.ref_name }}"
+          echo "✅ Runner OS: ${{ runner.os }}"
+          echo "✅ Job Status: Success"
+          echo "========================================="
+          echo "🎯 ALL REQUIREMENTS COMPLETED:"
+          echo "   1. ✓ Current directory shown"
+          echo "   2. ✓ Files listed"  
+          echo "   3. ✓ Directory created"
+          echo "   4. ✓ Message displayed"
+          echo "========================================="
+          echo "I am learning Github Actions - FINAL VERIFICATION"
+  
+  # JOB 3: Optional - Display Environment Info
+  environment-info:
+    name: Environment Information
+    runs-on: ubuntu-latest
+    needs: main-learning-job
+    
+    steps:
+      - name: Show GitHub Runner Information
+        run: |
+          echo "========================================="
+          echo "🖥️  GITHUB RUNNER ENVIRONMENT"
+          echo "========================================="
+          echo "Runner OS: ${{ runner.os }}"
+          echo "Runner Architecture: ${{ runner.arch }}"
+          echo "GitHub Workspace: ${{ github.workspace }}"
+          echo "Job ID: ${{ github.job }}"
+          echo "Run ID: ${{ github.run_id }}"
+          echo "Run Number: ${{ github.run_number }}"
